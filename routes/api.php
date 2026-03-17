@@ -21,3 +21,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/courses/{course}', [CourseController::class, 'show']);
 });
+
+Route::middleware(['auth:api', 'role:teacher'])->group(function () {
+    Route::post('/courses', [CourseController::class, 'store']);
+});

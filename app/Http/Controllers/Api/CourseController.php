@@ -23,4 +23,25 @@ class CourseController extends Controller
             'course' => $course->load('teacher')
         ]);
     }
+
+    public function store(Request $request) 
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $course = Course::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'teacher_id' => auth('api')->user()->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Course Created with success',
+            'course' => $course
+        ], 201);
+    }
 }
