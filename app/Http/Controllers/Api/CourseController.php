@@ -16,4 +16,11 @@ class CourseController extends Controller
             'courses' => $courses
         ]);
     }
+
+    public function show(Course $course) 
+    {
+        return response()->json([
+            'course' => $course->load('teacher')
+        ]);
+    }
 }

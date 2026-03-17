@@ -19,4 +19,5 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/courses/{course}', [CourseController::class, 'show']);
 });
