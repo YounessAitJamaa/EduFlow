@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\SavedCourseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,3 +35,8 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
 });
 // -----------------------------------------------
+
+Route::middleware(['auth:api', 'role:student'])->group(function (){
+    Route::get('/saved-courses', [SavedCourseController::class, 'index']);
+    Route::post('/saved-courses/{course}', [SavedCourseController::class, 'store']);
+});
