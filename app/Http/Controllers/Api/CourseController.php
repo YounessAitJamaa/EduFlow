@@ -69,4 +69,20 @@ class CourseController extends Controller
             'course' => $course
         ]);
     }
+
+    public function destroy(Course $course)
+    {
+        if($course->teacher_id !== auth('api')->id())
+        {
+            return response()->json([
+                'message' => 'Access Denied'
+            ], 403);
+        }
+
+        $course->delete();
+
+        return response()->json([
+            'message' => 'Course Deleted Successfully',
+        ]);
+    }
 }
