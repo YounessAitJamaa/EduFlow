@@ -25,4 +25,9 @@ class Course extends Model
         ];
     }
 
+    public function savdeByStudents()
+    {
+        return $this->hasMany(SavedCourse::class);
+    }
+
 }
