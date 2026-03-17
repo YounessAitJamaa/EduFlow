@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
 
+use function PHPSTORM_META\map;
+
 class CourseController extends Controller
 {
     public function index()
@@ -43,5 +45,28 @@ class CourseController extends Controller
             'message' => 'Course Created with success',
             'course' => $course
         ], 201);
+    }
+
+    public function update(Request $request, Course $course)
+    {
+        if($course->teacher_id !== auth('api')->id()) 
+        {
+            return response()->json([
+                'message' => 'Access Denied',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'string'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+        ]);
+
+        $course->update($validated);
+
+        return response()->json([
+            'message' => 'Course Updated Successfully',
+            'course' => $course
+        ]);
     }
 }

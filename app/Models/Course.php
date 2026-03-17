@@ -17,4 +17,12 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+        ];
+    }
+
 }
