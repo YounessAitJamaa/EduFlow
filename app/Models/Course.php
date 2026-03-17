@@ -30,4 +30,9 @@ class Course extends Model
         return $this->hasMany(SavedCourse::class);
     }
 
+    public function interests()
+    {
+        return $this->belongsToMany(Interest::class, 'course_interests', 'course_id', 'interest_id');
+    }
+
 }
