@@ -55,4 +55,11 @@ class AuthController extends Controller
             'user' => Auth::guard('api')->user(),
         ]);
     }
+
+    public function me()
+    {
+        return response()->json([
+            'user' => Auth::guard('api')->user()
+        ]);
+    }
 }
