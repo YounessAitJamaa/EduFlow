@@ -42,4 +42,25 @@ class SavedCourseController extends Controller
             'saved Course' => $savedCourse,
         ], 201);
     }
+
+    public function destroy(Course $course)
+    {   
+        $studentId = auth('api')->id();
+
+        $savedCourse = SavedCourse::where('student_id', $studentId)
+                        ->where('course_id', $course->id)
+                        ->first();
+        
+        if(!$savedCourse) {
+            return response()->json([
+                'message' => 'Saved Course not found'
+            ], 409);
+        }
+
+        $savedCourse->delete();
+
+        return response()->json([
+            'message' => 'Saved course remove successfully'
+        ]);
+    }
 }

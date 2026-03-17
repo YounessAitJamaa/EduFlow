@@ -39,4 +39,5 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 Route::middleware(['auth:api', 'role:student'])->group(function (){
     Route::get('/saved-courses', [SavedCourseController::class, 'index']);
     Route::post('/saved-courses/{course}', [SavedCourseController::class, 'store']);
+    Route::delete('/saved-courses/{course}', [SavedCourseController::class, 'destroy']);
 });
