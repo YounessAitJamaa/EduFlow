@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\SavedCourseController;
 use Illuminate\Http\Request;
@@ -59,3 +60,11 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-courses', [InterestController::class, 'recommendedCourses']);
+
+// -------------------------------------------------
+
+// Enrollment Routes -----------------------------------
+
+Route::middleware(['auth:api', 'role:student'])->group(function () {
+    Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'store']);
+});
