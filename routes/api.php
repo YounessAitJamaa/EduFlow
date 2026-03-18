@@ -50,4 +50,5 @@ Route::middleware(['auth:api', 'role:student'])->group(function (){
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests']);
+    Route::get('/student/interests', [InterestController::class, 'myInterests']);
 });

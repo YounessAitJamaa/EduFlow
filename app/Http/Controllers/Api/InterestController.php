@@ -23,4 +23,13 @@ class InterestController extends Controller
             'interests' => $student->interests()->get(),
         ]);
     }
+
+    public function myInterests()
+    {
+        $student = auth('api')->user()->load('interests');
+
+        return response()->json([
+            'interests' => $student->interests
+        ]);
+    }
 }
