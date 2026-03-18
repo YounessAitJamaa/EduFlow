@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use Illuminate\Http\Request;
 
 class InterestController extends Controller
@@ -30,6 +31,27 @@ class InterestController extends Controller
 
         return response()->json([
             'interests' => $student->interests
+        ]);
+    }
+
+    public function attachCourseInterests(Request $request,Course $course)
+    {
+        $validated = $request->validate([
+            'interest_ids' => ['required', 'array'],
+            'interest_ids.*' => ['exists:interests,id'],
+        ]);
+
+        if($course->teacher_id !== auth('api')->id()) {
+            return response()->json([
+                'message' => 'Access denied'
+            ], 403);
+        }
+
+        $course->interests()->sync($validated['interest_ids']);
+
+        return response()->json([
+            'message' => 'Course interests updated successfully',
+            'interests' => $course->interests()->get()
         ]);
     }
 }
