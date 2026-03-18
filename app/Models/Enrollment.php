@@ -11,5 +11,14 @@ class Enrollment extends Model
         'course_id',
         'status',
     ];
-    
+
+    public function student()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
 }
