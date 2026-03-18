@@ -35,4 +35,26 @@ class EnrollmentController extends Controller
             'enrollment' => $enrollment,
         ], 201);
     }
+
+    public function destroy(Course $course) 
+    {
+        $studentId = auth('api')->id();
+
+        $enrollment = Enrollment::where('student_id', $studentId)
+                                ->where('course_id', $course->id)
+                                ->first();
+        
+        if(!$enrollment)
+        {
+            return response()->json([
+                'message' => 'Enrollment not found'
+            ], 404);
+        }
+
+        $enrollment->delete();
+
+        return response()->json([
+            'message' => 'You left the course successfully'
+        ]);
+    }
 }
