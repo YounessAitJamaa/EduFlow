@@ -49,10 +49,11 @@ Route::middleware(['auth:api', 'role:student'])->group(function (){
 // Interests Routes ------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests']);
     Route::get('/student/interests', [InterestController::class, 'myInterests']);
+    Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests']);
 });
 
-Route::middleware(['auth:api', 'role:teacher'])->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::post('/courses/{course}/interests', [InterestController::class, 'attachCourseInterests']);
+    Route::get('/courses/{course}/interests', [InterestController::class, 'courseInterests']);
 });

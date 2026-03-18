@@ -54,4 +54,14 @@ class InterestController extends Controller
             'interests' => $course->interests()->get()
         ]);
     }
+
+    public function courseInterests(Course $course)
+    {
+        $interests = $course->interests()->get();
+
+        return response()->json([
+            'Course title' => $course->title,
+            'interests' => $interests,
+        ]);
+    }
 }
