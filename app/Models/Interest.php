@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Interest extends Model
 {
+    protected $fillable = [
+        'name',
+    ];
+    
     public function students()
     {
         return $this->belongsToMany(User::class, 'student_interests', 'interest_id', 'student_id');
