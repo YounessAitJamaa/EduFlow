@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Interest;
 use Illuminate\Http\Request;
 
 class InterestController extends Controller
@@ -63,5 +64,29 @@ class InterestController extends Controller
             'Course title' => $course->title,
             'interests' => $interests,
         ]);
+    }
+
+    public function recommendedCourses()
+    {
+        $student = auth('api')->user();
+
+        $interestIds = $student->interests()->pluck('interests.id')->toArray();
+
+        if(empty($interestIds)){
+            return response()->json([
+                'recommended courses' => []
+            ]);
+        }
+
+        $courses = Course::with(['teacher', 'interests'])
+                    ->whereHas('interests', function ($query) use ($interestIds){
+                        $query->whereIn('interests.id', $interestIds);
+                    })
+                    ->get();
+        
+        return response()->json([
+            'recommended courses' => $courses
+        ]);
+        
     }
 }

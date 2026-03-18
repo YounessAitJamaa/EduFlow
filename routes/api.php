@@ -57,3 +57,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/courses/{course}/interests', [InterestController::class, 'attachCourseInterests']);
     Route::get('/courses/{course}/interests', [InterestController::class, 'courseInterests']);
 });
+
+Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-courses', [InterestController::class, 'recommendedCourses']);
