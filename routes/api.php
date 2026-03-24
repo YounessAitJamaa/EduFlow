@@ -84,4 +84,7 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
     Route::get('/groups/{course}', [GroupController::class, 'ListGroups']);
+    Route::get('/groups/{group}/students', [GroupController::class, 'groupParticipants']);
 });
+
+// -----------------------------------------------------------------
