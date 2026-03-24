@@ -5,8 +5,10 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\InterestController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\SavedCourseController;
 use App\Models\Group;
+use Faker\Provider\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -88,3 +90,13 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 });
 
 // -----------------------------------------------------------------
+
+
+// Payment Routes --------------------------------------------------
+
+Route::middleware(['auth:api', 'role:student'])->group(function (){
+    Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession']);
+});
+
+Route::get('/payment/success', [PaymentController::class, 'success']);
+// ------------------------------------------------------------------
