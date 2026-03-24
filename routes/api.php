@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\EnrollmentController;
+use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\SavedCourseController;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -73,4 +75,13 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
     Route::get('/courses/{course}/students', [EnrollmentController::class, 'courseStudents']);
+});
+
+// --------------------------------------------------------
+
+
+// Group Routes ----------------------------------------------------
+
+Route::middleware(['auth:api', 'role:teacher'])->group(function () {
+    Route::get('/groups/{course}', [GroupController::class, 'ListGroups']);
 });
