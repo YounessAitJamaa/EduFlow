@@ -57,4 +57,17 @@ class EnrollmentController extends Controller
             'message' => 'You left the course successfully'
         ]);
     }
+
+    public function myEnrollments()
+    {
+        $studentId = auth('api')->id();
+
+        $enrollments = Enrollment::with('course')
+            ->where('student_id', $studentId)
+            ->get();
+
+        return response()->json([
+            'enrollments' => $enrollments
+        ]);
+    }
 }
