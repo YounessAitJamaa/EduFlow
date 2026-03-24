@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
 {
+    protected $fillable = [
+        'course_id',
+        'name',
+    ];
+
     public function course()
     {
         return $this->belongsTo(Course::class);

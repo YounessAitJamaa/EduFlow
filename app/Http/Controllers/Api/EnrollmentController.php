@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class EnrollmentController extends Controller
 {
+
     public function store(Course $course)
     {
         $studentId = auth('api')->id();
@@ -30,10 +32,33 @@ class EnrollmentController extends Controller
             'status' => 'active',
         ]);
 
+        $group = $this->assignStudentToGroup($studentId, $course->id);
+
         return response()->json([
             'message' => 'Enrolled Successfully',
             'enrollment' => $enrollment,
+            'group' => $group,
         ], 201);
+    }
+
+    private function assignStudentToGroup($studentId, $courseId)
+    {
+        $group = Group::where('course_id', $courseId)
+                    ->withCount('students')
+                    ->orderBy('id', 'desc')
+                    ->get()
+                    ->first(fn($g) => $g->students_count < 25);
+        
+        if(!$group) {
+            $group = Group::create([
+                'course_id' => $courseId,
+                'name' => 'Group ' . (Group::where('course_id', $courseId)->count() + 1)
+            ]);
+        }
+
+        $group->students()->attach($studentId);
+
+        return $group;
     }
 
     public function destroy(Course $course) 
