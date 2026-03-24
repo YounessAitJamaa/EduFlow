@@ -70,3 +70,7 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'store']);
     Route::delete('/course/{course}/leav', [EnrollmentController::class, 'destroy']);
 });
+
+Route::middleware(['auth:api', 'role:teacher'])->group(function () {
+    Route::get('/courses/{course}/students', [EnrollmentController::class, 'courseStudents']);
+});
