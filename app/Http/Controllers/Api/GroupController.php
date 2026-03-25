@@ -5,60 +5,45 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Group;
+use App\Services\GroupService;
+use Exception;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
+    protected $groupService;
+
+    public function __construct(GroupService $groupService)
+    {
+        $this->groupService = $groupService;
+    }
+
     public function ListGroups(Course $course)
     {
-        $teacherId = auth('api')->id();
+        try {
+            $groups = $this->groupService->getCourseGroups($course, auth('api')->id());
 
-        $SeachredCourse = Course::where('id', $course->id)
-            ->where('teacher_id', $teacherId)
-            ->with('groups')
-            ->first();
-
-        if (!$SeachredCourse) {
             return response()->json([
-                'message' => 'Course not found or access denied'
-            ], 404);
+                'course_id' => $course->id,
+                'course_title' => $course->title,
+                'groups' => $groups
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
         }
-
-        return response()->json([
-            'course_id' => $SeachredCourse->id,
-            'course_title' => $SeachredCourse->title,
-            'groups' => $SeachredCourse->groups
-        ]);
     }
 
     public function groupParticipants(Group $group)
     {
-        $teacherId = auth('api')->id();
-
-        $group = Group::with('students', 'course')
-            ->where('id', $group->id)
-            ->first();
-
-        if (!$group || $group->course->teacher_id !== $teacherId) {
+        try {
+            $response = $this->groupService->getGroupParticipants($group, auth('api')->id());
+            return response()->json($response);
+        } catch (Exception $e) {
             return response()->json([
-                'message' => 'Group not found or access denied'
-            ], 404);
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
         }
-
-        $students = $group->students->map(function ($student) {
-            return [
-                'id' => $student->id,
-                'name' => $student->name,
-                'email' => $student->email,
-            ];
-        });
-
-        return response()->json([
-            'group id' => $group->id,
-            'group name' => $group->name,
-            'course id' => $group->course->id,
-            'course title' => $group->course->title,
-            'students' => $students
-        ]);
     }
 }
