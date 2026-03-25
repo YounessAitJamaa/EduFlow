@@ -16,7 +16,7 @@ class Group extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function students() 
+    public function students()
     {
         return $this->belongsToMany(User::class, 'group_student', 'group_id', 'student_id');
     }
