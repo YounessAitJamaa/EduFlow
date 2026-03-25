@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\Interest;
+use App\Services\InterestService;
+use Exception;
 use Illuminate\Http\Request;
 
 class InterestController extends Controller
 {
+    protected $interestService;
+
+    public function __construct(InterestService $interestService)
+    {
+        $this->interestService = $interestService;
+    }
+
     public function SelectStudentInterests(Request $request)
     {
         $validated = $request->validate([
@@ -16,49 +24,47 @@ class InterestController extends Controller
             'interest_ids.*' => ['exists:interests,id'],
         ]);
 
-        $student = auth('api')->user();
-
-        $student->interests()->sync($validated['interest_ids']);
+        $interests = $this->interestService->syncStudentInterests(auth('api')->user(), $validated['interest_ids']);
 
         return response()->json([
             'message' => 'Interests selected succefully',
-            'interests' => $student->interests()->get(),
+            'interests' => $interests,
         ]);
     }
 
     public function myInterests()
     {
-        $student = auth('api')->user()->load('interests');
+        $interests = $this->interestService->getStudentInterests(auth('api')->user());
 
         return response()->json([
-            'interests' => $student->interests
+            'interests' => $interests
         ]);
     }
 
-    public function attachCourseInterests(Request $request,Course $course)
+    public function attachCourseInterests(Request $request, Course $course)
     {
         $validated = $request->validate([
             'interest_ids' => ['required', 'array'],
             'interest_ids.*' => ['exists:interests,id'],
         ]);
 
-        if($course->teacher_id !== auth('api')->id()) {
+        try {
+            $interests = $this->interestService->attachCourseInterests($course, $validated['interest_ids'], auth('api')->id());
+
             return response()->json([
-                'message' => 'Access denied'
-            ], 403);
+                'message' => 'Course interests updated successfully',
+                'interests' => $interests
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
         }
-
-        $course->interests()->sync($validated['interest_ids']);
-
-        return response()->json([
-            'message' => 'Course interests updated successfully',
-            'interests' => $course->interests()->get()
-        ]);
     }
 
     public function courseInterests(Course $course)
     {
-        $interests = $course->interests()->get();
+        $interests = $this->interestService->getCourseInterests($course);
 
         return response()->json([
             'Course title' => $course->title,
@@ -68,25 +74,10 @@ class InterestController extends Controller
 
     public function recommendedCourses()
     {
-        $student = auth('api')->user();
+        $courses = $this->interestService->getRecommendedCourses(auth('api')->user());
 
-        $interestIds = $student->interests()->pluck('interests.id')->toArray();
-
-        if(empty($interestIds)){
-            return response()->json([
-                'recommended courses' => []
-            ]);
-        }
-
-        $courses = Course::with(['teacher', 'interests'])
-                    ->whereHas('interests', function ($query) use ($interestIds){
-                        $query->whereIn('interests.id', $interestIds);
-                    })
-                    ->get();
-        
         return response()->json([
             'recommended courses' => $courses
         ]);
-        
     }
 }
