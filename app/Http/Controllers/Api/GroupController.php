@@ -18,7 +18,7 @@ class GroupController extends Controller
             ->with('groups')
             ->first();
 
-        if (!$course) {
+        if (!$SeachredCourse) {
             return response()->json([
                 'message' => 'Course not found or access denied'
             ], 404);

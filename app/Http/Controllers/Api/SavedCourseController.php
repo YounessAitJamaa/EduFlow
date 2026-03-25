@@ -11,7 +11,10 @@ class SavedCourseController extends Controller
 {
     public function index()
     {
-        $savedCourses = SavedCourse::with(['course', 'student']);
+        $studentId = auth('api')->id();
+        $savedCourses = SavedCourse::with(['course', 'student'])
+                            ->where('student_id', $studentId)
+                            ->get();
 
         return response()->json([
             'saved Courses' => $savedCourses

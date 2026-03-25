@@ -30,7 +30,7 @@ class AuthController extends Controller
         $token = Auth::guard('api')->login($user);
 
         return response()->json([
-            'message' => 'User Created Successfyllu',
+            'message' => 'User Created Successfully',
             'user' => $user,
             'token' => $token
         ], 201);
@@ -45,7 +45,7 @@ class AuthController extends Controller
 
         if(! $token = Auth::guard('api')->attempt($credentials)) {
             return response()->json([
-                'message' => 'Invalide credentials'
+                'message' => 'Invalid credentials'
             ], 401);
         }
 

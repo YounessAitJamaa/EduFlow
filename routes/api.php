@@ -72,7 +72,7 @@ Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-cours
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/enrollments', [EnrollmentController::class, 'myEnrollments']);
     Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'store']);
-    Route::delete('/course/{course}/leav', [EnrollmentController::class, 'destroy']);
+    Route::delete('/courses/{course}/leave', [EnrollmentController::class, 'destroy']);
 });
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
