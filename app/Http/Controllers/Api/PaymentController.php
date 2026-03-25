@@ -4,53 +4,48 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\Enrollment;
+use App\Services\PaymentService;
+use App\Services\EnrollmentService;
+use Exception;
 use Illuminate\Http\Request;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
 
 class PaymentController extends Controller
 {
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
     public function createCheckoutSession(Course $course)
     {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        try {
+            $checkoutUrl = $this->paymentService->createCheckoutSession($course, auth('api')->id());
 
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => $course->title,
-                    ],
-                    'unit_amount' => $course->price * 100,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => url('/api/payment/success?course_id=' . $course->id . '&student_id=' . auth('api')->id()),
-            'cancel_url' => url('/api/payment/cancel'),
-        ]);
-
-        return response()->json([
-            'checkout_url' => $session->url
-        ]);
-
+            return response()->json([
+                'checkout_url' => $checkoutUrl
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to create checkout session: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function success(Request $request)
     {
-        $courseId = $request->course_id;
+        try {
+            $enrollment = $this->paymentService->processSuccess($request->course_id, $request->student_id);
 
-        $enrollment = Enrollment::create([
-            'student_id' => $request->student_id,
-            'course_id' => $courseId,
-            'status' => 'active',
-        ]);
-
-        return response()->json([
-            'message' => 'Payment successful, enrolled in course',
-            'enrollment' => $enrollment
-        ]);
+            return response()->json([
+                'message' => 'Payment successful, enrolled in course',
+                'enrollment' => $enrollment
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to process payment success: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

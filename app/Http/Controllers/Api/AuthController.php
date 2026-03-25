@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Services\AuthService;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -20,19 +25,12 @@ class AuthController extends Controller
             'role' => ['required', 'in:student,teacher'],
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-        ]);
-
-        $token = Auth::guard('api')->login($user);
+        $result = $this->authService->register($validated);
 
         return response()->json([
             'message' => 'User Created Successfully',
-            'user' => $user,
-            'token' => $token
+            'user' => $result['user'],
+            'token' => $result['token']
         ], 201);
     }
 
@@ -43,32 +41,74 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if(! $token = Auth::guard('api')->attempt($credentials)) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
-        }
+        try {
+            $result = $this->authService->login($credentials);
 
-        return response()->json([
-            'message' => 'Login Successful',
-            'token' => $token,
-            'user' => Auth::guard('api')->user(),
-        ]);
+            return response()->json([
+                'message' => 'Login Successful',
+                'token' => $result['token'],
+                'user' => $result['user'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
+        }
     }
 
     public function me()
     {
         return response()->json([
-            'user' => Auth::guard('api')->user()
+            'user' => $this->authService->me()
         ]);
     }
 
     public function logout()
     {
-        Auth::guard('api')->logout();
+        $this->authService->logout();
 
         return response()->json([
             'message' => 'Logged Out Successfully'
         ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        try {
+            $message = $this->authService->forgotPassword($validated);
+            
+            return response()->json([
+                'message' => $message
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        try {
+            $message = $this->authService->resetPassword($validated);
+
+            return response()->json([
+                'message' => $message
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
+        }
     }
 }

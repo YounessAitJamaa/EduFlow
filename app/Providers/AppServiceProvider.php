@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Eloquent\AuthRepository;
+use App\Repositories\Interfaces\AuthRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Interfaces\CourseRepositoryInterface;
 use App\Repositories\Eloquent\CourseRepository;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GroupRepositoryInterface::class, GroupRepository::class);
         $this->app->bind(SavedCourseRepositoryInterface::class, SavedCourseRepository::class);
         $this->app->bind(InterestRepositoryInterface::class, InterestRepository::class);
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
     }
 
     /**

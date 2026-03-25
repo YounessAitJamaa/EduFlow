@@ -20,6 +20,8 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -44,7 +46,7 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 
 // Saved Courses ---------------------------------
 
-Route::middleware(['auth:api', 'role:student'])->group(function (){
+Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/saved-courses', [SavedCourseController::class, 'index']);
     Route::post('/saved-courses/{course}', [SavedCourseController::class, 'store']);
     Route::delete('/saved-courses/{course}', [SavedCourseController::class, 'destroy']);
@@ -94,7 +96,7 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 
 // Payment Routes --------------------------------------------------
 
-Route::middleware(['auth:api', 'role:student'])->group(function (){
+Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession']);
 });
 
