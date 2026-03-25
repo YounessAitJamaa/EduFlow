@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Services\CourseService;
+use Exception;
 use Illuminate\Http\Request;
-
-use function PHPSTORM_META\map;
 
 class CourseController extends Controller
 {
+    protected $courseService;
+
+    public function __construct(CourseService $courseService)
+    {
+        $this->courseService = $courseService;
+    }
+
     public function index()
     {
-        $courses = Course::with('teacher')->get();
+        $courses = $this->courseService->getAllCourses();
 
         return response()->json([
             'courses' => $courses
@@ -22,7 +29,7 @@ class CourseController extends Controller
     public function show(Course $course) 
     {
         return response()->json([
-            'course' => $course->load('teacher')
+            'course' => $this->courseService->getCourseById($course)
         ]);
     }
 
@@ -34,12 +41,7 @@ class CourseController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $course = Course::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'price' => $validated['price'],
-            'teacher_id' => auth('api')->user()->id,
-        ]);
+        $course = $this->courseService->createCourse($validated, auth('api')->id());
 
         return response()->json([
             'message' => 'Course Created with success',
@@ -49,40 +51,38 @@ class CourseController extends Controller
 
     public function update(Request $request, Course $course)
     {
-        if($course->teacher_id !== auth('api')->id()) 
-        {
-            return response()->json([
-                'message' => 'Access Denied',
-            ], 403);
-        }
-
         $validated = $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'string'],
             'price' => ['sometimes', 'numeric', 'min:0'],
         ]);
 
-        $course->update($validated);
-
-        return response()->json([
-            'message' => 'Course Updated Successfully',
-            'course' => $course
-        ]);
+        try {
+            $updatedCourse = $this->courseService->updateCourse($course, $validated, auth('api')->id());
+            
+            return response()->json([
+                'message' => 'Course Updated Successfully',
+                'course' => $updatedCourse
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
     }
 
     public function destroy(Course $course)
     {
-        if($course->teacher_id !== auth('api')->id())
-        {
+        try {
+            $this->courseService->deleteCourse($course, auth('api')->id());
+
             return response()->json([
-                'message' => 'Access Denied'
-            ], 403);
+                'message' => 'Course Deleted Successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode() ?: 500);
         }
-
-        $course->delete();
-
-        return response()->json([
-            'message' => 'Course Deleted Successfully',
-        ]);
     }
 }

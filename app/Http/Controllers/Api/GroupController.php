@@ -14,12 +14,11 @@ class GroupController extends Controller
         $teacherId = auth('api')->id();
 
         $SeachredCourse = Course::where('id', $course->id)
-                ->where('teacher_id', $teacherId)
-                ->with('groups')
-                ->first();
-        
-        if (!$course)
-        {
+            ->where('teacher_id', $teacherId)
+            ->with('groups')
+            ->first();
+
+        if (!$course) {
             return response()->json([
                 'message' => 'Course not found or access denied'
             ], 404);
@@ -37,11 +36,10 @@ class GroupController extends Controller
         $teacherId = auth('api')->id();
 
         $group = Group::with('students', 'course')
-                ->where('id', $group->id)
-                ->first();
-        
-        if(!$group || $group->course->teacher_id !== $teacherId)
-        {
+            ->where('id', $group->id)
+            ->first();
+
+        if (!$group || $group->course->teacher_id !== $teacherId) {
             return response()->json([
                 'message' => 'Group not found or access denied'
             ], 404);

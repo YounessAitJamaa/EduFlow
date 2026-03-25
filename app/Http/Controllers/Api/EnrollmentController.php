@@ -16,11 +16,10 @@ class EnrollmentController extends Controller
         $studentId = auth('api')->id();
 
         $existingEnrollment = Enrollment::where('student_id', $studentId)
-                                ->where('course_id', $course->id)
-                                ->first();
+            ->where('course_id', $course->id)
+            ->first();
 
-        if($existingEnrollment)
-        {
+        if ($existingEnrollment) {
             return response()->json([
                 'message' => 'You are already Enrolled in this course'
             ], 409);
@@ -44,12 +43,12 @@ class EnrollmentController extends Controller
     private function assignStudentToGroup($studentId, $courseId)
     {
         $group = Group::where('course_id', $courseId)
-                    ->withCount('students')
-                    ->orderBy('id', 'desc')
-                    ->get()
-                    ->first(fn($g) => $g->students_count < 25);
-        
-        if(!$group) {
+            ->withCount('students')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->first(fn($g) => $g->students_count < 25);
+
+        if (!$group) {
             $group = Group::create([
                 'course_id' => $courseId,
                 'name' => 'Group ' . (Group::where('course_id', $courseId)->count() + 1)
@@ -61,16 +60,15 @@ class EnrollmentController extends Controller
         return $group;
     }
 
-    public function destroy(Course $course) 
+    public function destroy(Course $course)
     {
         $studentId = auth('api')->id();
 
         $enrollment = Enrollment::where('student_id', $studentId)
-                                ->where('course_id', $course->id)
-                                ->first();
-        
-        if(!$enrollment)
-        {
+            ->where('course_id', $course->id)
+            ->first();
+
+        if (!$enrollment) {
             return response()->json([
                 'message' => 'Enrollment not found'
             ], 404);
@@ -101,11 +99,11 @@ class EnrollmentController extends Controller
         $teacherId = auth('api')->id();
 
         $searchedCourse = Course::with('enrollments.student')
-                    ->where('id', $course->id)
-                    ->where('teacher_id', $teacherId)
-                    ->first();
+            ->where('id', $course->id)
+            ->where('teacher_id', $teacherId)
+            ->first();
 
-        if(!$searchedCourse) {
+        if (!$searchedCourse) {
             return response()->json([
                 'message' => 'Course not found or access denied'
             ], 404);
