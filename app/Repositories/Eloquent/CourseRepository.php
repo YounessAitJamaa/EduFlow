@@ -32,4 +32,11 @@ class CourseRepository implements CourseRepositoryInterface
     {
         return $course->delete();
     }
+
+    public function getTeacherCoursesWithStats(int $teacherId): Collection
+    {
+        return Course::where('teacher_id', $teacherId)
+            ->withCount(['enrollments', 'groups'])
+            ->get();
+    }
 }

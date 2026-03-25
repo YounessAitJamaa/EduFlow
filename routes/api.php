@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\SavedCourseController;
+use App\Http\Controllers\Api\StatisticsController;
 use App\Models\Group;
 use Faker\Provider\Payment;
 use Illuminate\Http\Request;
@@ -41,6 +42,7 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
     Route::post('/courses', [CourseController::class, 'store']);
     Route::put('/courses/{course}', [CourseController::class, 'update']);
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
+    Route::get('/teacher/statistics', [StatisticsController::class, 'index']);
 });
 // -----------------------------------------------
 
@@ -100,5 +102,6 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession']);
 });
 
-Route::get('/payment/success', [PaymentController::class, 'success']);
+Route::get('/payment/cancel', [PaymentController::class, 'cancel']);
+Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
 // ------------------------------------------------------------------

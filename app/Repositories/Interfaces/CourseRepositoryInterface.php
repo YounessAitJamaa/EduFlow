@@ -12,4 +12,5 @@ interface CourseRepositoryInterface
     public function createCourse(array $data): Course;
     public function updateCourse(Course $course, array $data): bool;
     public function deleteCourse(Course $course): bool;
+    public function getTeacherCoursesWithStats(int $teacherId): Collection;
 }
