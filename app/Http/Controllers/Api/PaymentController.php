@@ -36,16 +36,24 @@ class PaymentController extends Controller
     public function success(Request $request)
     {
         try {
-            $enrollment = $this->paymentService->processSuccess($request->course_id, $request->student_id);
+            $result = $this->paymentService->processSuccess($request->course_id, $request->student_id);
 
             return response()->json([
                 'message' => 'Payment successful, enrolled in course',
-                'enrollment' => $enrollment
+                'enrollment' => $result['enrollment'],
+                'group' => $result['group']
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to process payment success: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function cancel()
+    {
+        return response()->json([
+            'message' => 'Payment cancelled'
+        ]);
     }
 }

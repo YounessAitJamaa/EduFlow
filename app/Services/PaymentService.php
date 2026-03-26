@@ -4,11 +4,18 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Services\EnrollmentService;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 
 class PaymentService
 {
+    protected $enrollmentService;
+
+    public function __construct(EnrollmentService $enrollmentService)
+    {
+        $this->enrollmentService = $enrollmentService;
+    }
     public function createCheckoutSession(Course $course, int $studentId): string
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -35,12 +42,9 @@ class PaymentService
         return $session->url;
     }
 
-    public function processSuccess(int $courseId, int $studentId): Enrollment
+    public function processSuccess(int $courseId, int $studentId): array
     {
-        return Enrollment::create([
-            'student_id' => $studentId,
-            'course_id' => $courseId,
-            'status' => 'active',
-        ]);
+        $course = Course::findOrFail($courseId);
+        return $this->enrollmentService->enrollStudent($course, $studentId);
     }
 }
