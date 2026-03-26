@@ -19,14 +19,14 @@ Route::get('/user', function (Request $request) {
 
 // Auth Routes ----------------------------------
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
 // -----------------------------------------------
 
@@ -34,53 +34,52 @@ Route::middleware('auth:api')->group(function () {
 // Course Routes ---------------------------------
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/courses', [CourseController::class, 'index']);
-    Route::get('/courses/{course}', [CourseController::class, 'show']);
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
 });
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
-    Route::post('/courses', [CourseController::class, 'store']);
-    Route::put('/courses/{course}', [CourseController::class, 'update']);
-    Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
-    Route::get('/teacher/statistics', [StatisticsController::class, 'index']);
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+    Route::put('/courses/{course}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+    Route::get('/teacher/statistics', [StatisticsController::class, 'index'])->name('teacher.statistics');
 });
 // -----------------------------------------------
 
 // Saved Courses ---------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/saved-courses', [SavedCourseController::class, 'index']);
-    Route::post('/saved-courses/{course}', [SavedCourseController::class, 'store']);
-    Route::delete('/saved-courses/{course}', [SavedCourseController::class, 'destroy']);
+    Route::get('/saved-courses', [SavedCourseController::class, 'index'])->name('saved-courses.index');
+    Route::post('/saved-courses/{course}', [SavedCourseController::class, 'store'])->name('saved-courses.store');
+    Route::delete('/saved-courses/{course}', [SavedCourseController::class, 'destroy'])->name('saved-courses.destroy');
 });
 // -----------------------------------------------
 
 // Interests Routes ------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/student/interests', [InterestController::class, 'myInterests']);
-    Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests']);
+    Route::get('/student/interests', [InterestController::class, 'myInterests'])->name('student.interests.index');
+    Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests'])->name('student.interests.store');
 });
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/courses/{course}/interests', [InterestController::class, 'attachCourseInterests']);
-    Route::get('/courses/{course}/interests', [InterestController::class, 'courseInterests']);
+    Route::post('/courses/{course}/interests', [InterestController::class, 'attachCourseInterests'])->name('courses.interests.attach');
+    Route::get('/courses/{course}/interests', [InterestController::class, 'courseInterests'])->name('courses.interests.index');
 });
 
-Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-courses', [InterestController::class, 'recommendedCourses']);
+Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-courses', [InterestController::class, 'recommendedCourses'])->name('student.recommended-courses');
 
 // -------------------------------------------------
 
 // Enrollment Routes -----------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/enrollments', [EnrollmentController::class, 'myEnrollments']);
-    Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'store']);
-    Route::delete('/courses/{course}/leave', [EnrollmentController::class, 'destroy']);
+    Route::get('/enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.index');
+    Route::delete('/courses/{course}/leave', [EnrollmentController::class, 'destroy'])->name('enrollments.leave');
 });
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
-    Route::get('/courses/{course}/students', [EnrollmentController::class, 'courseStudents']);
+    Route::get('/courses/{course}/students', [EnrollmentController::class, 'courseStudents'])->name('courses.students.index');
 });
 
 // --------------------------------------------------------
@@ -89,8 +88,8 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 // Group Routes ----------------------------------------------------
 
 Route::middleware(['auth:api', 'role:teacher'])->group(function () {
-    Route::get('/groups/{course}', [GroupController::class, 'ListGroups']);
-    Route::get('/groups/{group}/students', [GroupController::class, 'groupParticipants']);
+    Route::get('/groups/{course}', [GroupController::class, 'ListGroups'])->name('groups.index');
+    Route::get('/groups/{group}/students', [GroupController::class, 'groupParticipants'])->name('groups.students.index');
 });
 
 // -----------------------------------------------------------------
@@ -99,9 +98,9 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 // Payment Routes --------------------------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession']);
+    Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession'])->name('payment.checkout');
 });
 
-Route::get('/payment/cancel', [PaymentController::class, 'cancel']);
-Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 // ------------------------------------------------------------------
