@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Services\CourseService;
 use Exception;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class CourseController extends Controller
 {
@@ -17,6 +18,21 @@ class CourseController extends Controller
         $this->courseService = $courseService;
     }
 
+    #[OA\Get(
+        path: "/api/courses",
+        summary: "List all courses",
+        tags: ["Courses"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Successful operation",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "courses", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
     public function index()
     {
         $courses = $this->courseService->getAllCourses();
@@ -26,6 +42,29 @@ class CourseController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: "/api/courses/{course}",
+        summary: "Get course details",
+        tags: ["Courses"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Parameter(
+        name: "course",
+        in: "path",
+        description: "Course ID",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Successful operation",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "course", type: "object")
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: "Course not found")]
     public function show(Course $course) 
     {
         return response()->json([
@@ -33,6 +72,34 @@ class CourseController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: "/api/courses",
+        summary: "Create a new course",
+        tags: ["Courses"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["title", "price"],
+            properties: [
+                new OA\Property(property: "title", type: "string", example: "Laravel Advanced"),
+                new OA\Property(property: "description", type: "string", example: "Deep dive into Laravel"),
+                new OA\Property(property: "price", type: "number", format: "float", example: 49.99)
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: "Course Created with success",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string"),
+                new OA\Property(property: "course", type: "object")
+            ]
+        )
+    )]
+    #[OA\Response(response: 403, description: "Forbidden - Only teachers can create courses")]
     public function store(Request $request) 
     {
         $validated = $request->validate([
@@ -49,6 +116,40 @@ class CourseController extends Controller
         ], 201);
     }
 
+    #[OA\Put(
+        path: "/api/courses/{course}",
+        summary: "Update an existing course",
+        tags: ["Courses"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Parameter(
+        name: "course",
+        in: "path",
+        description: "Course ID",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "title", type: "string"),
+                new OA\Property(property: "description", type: "string"),
+                new OA\Property(property: "price", type: "number", format: "float")
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Course Updated Successfully",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string"),
+                new OA\Property(property: "course", type: "object")
+            ]
+        )
+    )]
+    #[OA\Response(response: 403, description: "Forbidden - Only the course teacher can update")]
     public function update(Request $request, Course $course)
     {
         $validated = $request->validate([
@@ -71,6 +172,29 @@ class CourseController extends Controller
         }
     }
 
+    #[OA\Delete(
+        path: "/api/courses/{course}",
+        summary: "Delete a course",
+        tags: ["Courses"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Parameter(
+        name: "course",
+        in: "path",
+        description: "Course ID",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Course Deleted Successfully",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string")
+            ]
+        )
+    )]
+    #[OA\Response(response: 403, description: "Forbidden - Only the course teacher can delete")]
     public function destroy(Course $course)
     {
         try {

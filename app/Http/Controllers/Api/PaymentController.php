@@ -8,6 +8,7 @@ use App\Services\PaymentService;
 use App\Services\EnrollmentService;
 use Exception;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class PaymentController extends Controller
 {
@@ -18,6 +19,29 @@ class PaymentController extends Controller
         $this->paymentService = $paymentService;
     }
 
+    #[OA\Post(
+        path: "/api/payment/checkout/{course}",
+        summary: "Create a Stripe checkout session for a course",
+        tags: ["Payments"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Parameter(
+        name: "course",
+        in: "path",
+        description: "Course ID",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Checkout URL retrieved",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "checkout_url", type: "string")
+            ]
+        )
+    )]
+    #[OA\Response(response: 500, description: "Failed to create checkout session")]
     public function createCheckoutSession(Course $course)
     {
         try {
@@ -33,6 +57,35 @@ class PaymentController extends Controller
         }
     }
 
+    #[OA\Get(
+        path: "/api/payment/success",
+        summary: "Handle successful payment redirect",
+        tags: ["Payments"]
+    )]
+    #[OA\Parameter(
+        name: "course_id",
+        in: "query",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Parameter(
+        name: "student_id",
+        in: "query",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Payment processed and student enrolled",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string"),
+                new OA\Property(property: "enrollment", type: "object"),
+                new OA\Property(property: "group", type: "object")
+            ]
+        )
+    )]
+    #[OA\Response(response: 500, description: "Failed to process success")]
     public function success(Request $request)
     {
         try {
@@ -50,6 +103,20 @@ class PaymentController extends Controller
         }
     }
 
+    #[OA\Get(
+        path: "/api/payment/cancel",
+        summary: "Handle cancelled payment redirect",
+        tags: ["Payments"]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Payment cancelled message",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string", example: "Payment cancelled")
+            ]
+        )
+    )]
     public function cancel()
     {
         return response()->json([

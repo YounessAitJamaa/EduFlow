@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Services\InterestService;
 use Exception;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class InterestController extends Controller
 {
@@ -17,6 +18,31 @@ class InterestController extends Controller
         $this->interestService = $interestService;
     }
 
+    #[OA\Post(
+        path: "/api/student/interests",
+        summary: "Select student interests",
+        tags: ["Interests"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["interest_ids"],
+            properties: [
+                new OA\Property(property: "interest_ids", type: "array", items: new OA\Items(type: "integer", example: 1))
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Interests selected successfully",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string"),
+                new OA\Property(property: "interests", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
     public function SelectStudentInterests(Request $request)
     {
         $validated = $request->validate([
@@ -27,20 +53,44 @@ class InterestController extends Controller
         $interests = $this->interestService->syncStudentInterests(auth('api')->user(), $validated['interest_ids']);
 
         return response()->json([
-            'message' => 'Interests selected succefully',
+            'message' => 'Interests selected successfully',
             'interests' => $interests,
         ]);
     }
 
-    public function myInterests()
-    {
-        $interests = $this->interestService->getStudentInterests(auth('api')->user());
-
-        return response()->json([
-            'interests' => $interests
-        ]);
-    }
-
+    #[OA\Post(
+        path: "/api/courses/{course}/interests",
+        summary: "Attach interests to a course",
+        tags: ["Interests"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Parameter(
+        name: "course",
+        in: "path",
+        description: "Course ID",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["interest_ids"],
+            properties: [
+                new OA\Property(property: "interest_ids", type: "array", items: new OA\Items(type: "integer", example: 1))
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Course interests updated successfully",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "message", type: "string"),
+                new OA\Property(property: "interests", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
+    #[OA\Response(response: 403, description: "Forbidden - Only the course teacher can attach interests")]
     public function attachCourseInterests(Request $request, Course $course)
     {
         $validated = $request->validate([
@@ -52,7 +102,7 @@ class InterestController extends Controller
             $interests = $this->interestService->attachCourseInterests($course, $validated['interest_ids'], auth('api')->id());
 
             return response()->json([
-                'message' => 'Course interests updated successfully',
+                'message: ' => 'Course interests updated successfully',
                 'interests' => $interests
             ]);
         } catch (Exception $e) {
@@ -62,22 +112,27 @@ class InterestController extends Controller
         }
     }
 
-    public function courseInterests(Course $course)
-    {
-        $interests = $this->interestService->getCourseInterests($course);
-
-        return response()->json([
-            'Course title' => $course->title,
-            'interests' => $interests,
-        ]);
-    }
-
+    #[OA\Get(
+        path: "/api/student/recommended-courses",
+        summary: "Get recommended courses based on interests",
+        tags: ["Interests"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "List of recommended courses",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "recommended_courses", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
     public function recommendedCourses()
     {
         $courses = $this->interestService->getRecommendedCourses(auth('api')->user());
 
         return response()->json([
-            'recommended courses' => $courses
+            'recommended_courses' => $courses
         ]);
     }
 }
