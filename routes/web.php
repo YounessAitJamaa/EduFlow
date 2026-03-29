@@ -33,3 +33,7 @@ Route::get('/payment/success', function () {
 Route::get('/payment/cancel', function () {
     return view('payment.cancel');
 });
+
+Route::get('/student/interests', function () {
+    return view('student.interests');
+});

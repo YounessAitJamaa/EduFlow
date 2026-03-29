@@ -14,4 +14,5 @@ interface InterestRepositoryInterface
     public function syncCourseInterests(Course $course, array $interestIds): void;
     public function getCourseInterests(Course $course): Collection;
     public function getRecommendedCourses(array $interestIds): Collection;
+    public function all(): Collection;
 }

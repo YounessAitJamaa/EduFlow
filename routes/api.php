@@ -60,6 +60,7 @@ Route::middleware(['auth:api', 'role:student'])->group(function () {
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/student/interests', [InterestController::class, 'myInterests'])->name('student.interests.index');
     Route::post('/student/interests', [InterestController::class, 'SelectStudentInterests'])->name('student.interests.store');
+    Route::get('/interests', [InterestController::class, 'index'])->name('interests.all');
 });
 
 Route::middleware('auth:api')->group(function () {

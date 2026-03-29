@@ -37,4 +37,9 @@ class InterestRepository implements InterestRepositoryInterface
             })
             ->get();
     }
+
+    public function all(): Collection
+    {
+        return \App\Models\Interest::all();
+    }
 }

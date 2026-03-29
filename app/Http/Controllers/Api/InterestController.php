@@ -135,4 +135,52 @@ class InterestController extends Controller
             'recommended_courses' => $courses
         ]);
     }
+
+    #[OA\Get(
+        path: "/api/interests",
+        summary: "Get all available interests",
+        tags: ["Interests"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "List of all interests",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "interests", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
+    public function index()
+    {
+        $interests = $this->interestService->getAllInterests();
+
+        return response()->json([
+            'interests' => $interests
+        ]);
+    }
+
+    #[OA\Get(
+        path: "/api/student/interests",
+        summary: "Get student's selected interests",
+        tags: ["Interests"],
+        security: [["bearerAuth" => []]]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "List of student's interests",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "interests", type: "array", items: new OA\Items(type: "object"))
+            ]
+        )
+    )]
+    public function myInterests()
+    {
+        $interests = $this->interestService->getStudentInterests(auth('api')->user());
+
+        return response()->json([
+            'interests' => $interests
+        ]);
+    }
 }

@@ -4,9 +4,14 @@
 
 @section('content')
 <div class="dashboard-container">
-    <header class="mb-4">
-        <h1>Welcome back, <span id="userName" style="color: var(--primary);">Student</span>!</h1>
-        <p style="color: var(--gray);">Here's what's happening with your learning journey.</p>
+    <header class="mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Welcome back, <span id="userName" style="color: var(--primary);">Student</span>!</h1>
+            <p style="color: var(--gray);">Here's what's happening with your learning journey.</p>
+        </div>
+        <a href="/student/interests" class="btn-secondary" style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-tags"></i> Edit Interests
+        </a>
     </header>
 
     <div class="stats-grid mb-4" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">

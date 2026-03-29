@@ -53,4 +53,9 @@ class InterestService
 
         return $this->interestRepository->getRecommendedCourses($interestIds);
     }
+
+    public function getAllInterests(): Collection
+    {
+        return $this->interestRepository->all();
+    }
 }
