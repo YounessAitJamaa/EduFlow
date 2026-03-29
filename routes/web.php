@@ -25,3 +25,11 @@ Route::get('/courses/{id}', function ($id) {
 Route::get('/dashboard', function () {
     return view('student.dashboard');
 });
+
+Route::get('/payment/success', function () {
+    return view('payment.success');
+});
+
+Route::get('/payment/cancel', function () {
+    return view('payment.cancel');
+});

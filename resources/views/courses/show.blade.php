@@ -103,21 +103,43 @@
             document.getElementById('instructorName').textContent = course.teacher ? course.teacher.name : 'Unknown Instructor';
             document.getElementById('detailImg').textContent = course.title.charAt(0);
 
+            // Check enrollment status ONLY if logged in
+            const token = localStorage.getItem('token');
+            let isEnrolled = false;
+            
+            if (token) {
+                const enrollmentResponse = await api.get('/enrollments');
+                if (enrollmentResponse && enrollmentResponse.enrollments) {
+                    isEnrolled = enrollmentResponse.enrollments.some(en => en.course_id == courseId);
+                }
+            }
+
+            const enrollBtn = document.getElementById('enrollBtn');
+            if (isEnrolled) {
+                enrollBtn.textContent = 'Continue Learning';
+                enrollBtn.classList.add('btn-secondary');
+                enrollBtn.classList.remove('btn-primary');
+                enrollBtn.onclick = null; // Clear any old listeners
+                enrollBtn.addEventListener('click', () => {
+                    console.log('Redirecting to dashboard...');
+                    window.location.href = '/dashboard';
+                });
+            } else {
+                enrollBtn.onclick = null;
+                enrollBtn.addEventListener('click', () => {
+                    console.log('Enroll button clicked!');
+                    handleEnrollment();
+                });
+            }
+
             loading.style.display = 'none';
             content.style.display = 'block';
 
-            // Check if user is logged in to enable buttons
-            const token = localStorage.getItem('token');
-            if (!token) {
-                document.getElementById('enrollBtn').addEventListener('click', () => window.location.href = '/login');
-                document.getElementById('wishlistBtn').addEventListener('click', () => window.location.href = '/login');
-            } else {
-                // Future implementation for Phase 3/4
-                document.getElementById('enrollBtn').addEventListener('click', () => alert('Enrollment logic coming soon!'));
-                document.getElementById('wishlistBtn').addEventListener('click', () => alert('Wishlist logic coming soon!'));
-            }
+            // Store course price for enrollment logic
+            window.currentCoursePrice = parseFloat(course.price);
 
         } catch (error) {
+            console.error('Course Load Error:', error);
             loading.innerHTML = `<div class="text-center" style="padding: 100px 0;">
                 <div style="font-size: 4rem; margin-bottom: 20px; color: #f59e0b;">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -125,6 +147,42 @@
                 <h3>Oops! ${error.message}</h3>
                 <a href="/courses" class="btn-primary" style="display: inline-block; margin-top: 20px;">Return to Catalog</a>
             </div>`;
+        }
+    }
+
+    async function handleEnrollment() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const enrollBtn = document.getElementById('enrollBtn');
+        const originalText = enrollBtn.innerHTML;
+        enrollBtn.disabled = true;
+        enrollBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const price = window.currentCoursePrice || 0;
+
+            if (price === 0) {
+                // Free course - Direct Enrollment
+                await api.post(`/courses/${courseId}/enroll`);
+                window.location.href = '/payment/success?course_id=' + courseId;
+            } else {
+                // Paid course - Stripe Checkout
+                const response = await api.post(`/payment/checkout/${courseId}`);
+                if (response && response.checkout_url) {
+                    window.location.href = response.checkout_url;
+                } else {
+                    throw new Error('Could not initiate payment. Please try again.');
+                }
+            }
+        } catch (error) {
+            console.error('Enrollment Error:', error);
+            alert('Error: ' + error.message);
+            enrollBtn.disabled = false;
+            enrollBtn.innerHTML = originalText;
         }
     }
 

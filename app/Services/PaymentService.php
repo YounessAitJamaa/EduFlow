@@ -35,8 +35,8 @@ class PaymentService
                 ]
             ],
             'mode' => 'payment',
-            'success_url' => url('/api/payment/success?course_id=' . $course->id . '&student_id=' . $studentId),
-            'cancel_url' => url('/api/payment/cancel'),
+            'success_url' => url('/payment/success?course_id=' . $course->id),
+            'cancel_url' => url('/payment/cancel'),
         ]);
 
         return $session->url;

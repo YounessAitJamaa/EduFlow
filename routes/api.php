@@ -75,6 +75,7 @@ Route::middleware(['auth:api', 'role:student'])->get('/student/recommended-cours
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
     Route::get('/enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.index');
+    Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'store'])->name('enrollments.store');
     Route::delete('/courses/{course}/leave', [EnrollmentController::class, 'destroy'])->name('enrollments.leave');
 });
 
@@ -98,7 +99,7 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 // Payment Routes --------------------------------------------------
 
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/courses/{course}/pay', [PaymentController::class, 'createCheckoutSession'])->name('payment.checkout');
+    Route::post('/payment/checkout/{course}', [PaymentController::class, 'createCheckoutSession'])->name('payment.checkout');
 });
 
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
