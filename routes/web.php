@@ -21,3 +21,7 @@ Route::get('/courses', function () {
 Route::get('/courses/{id}', function ($id) {
     return view('courses.show', ['id' => $id]);
 });
+
+Route::get('/dashboard', function () {
+    return view('student.dashboard');
+});
