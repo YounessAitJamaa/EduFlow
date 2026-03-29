@@ -23,7 +23,9 @@
 </div>
 
 <div id="noCourses" class="text-center" style="display: none; padding: 100px 0;">
-    <div style="font-size: 4rem; margin-bottom: 20px;">🔍</div>
+    <div style="font-size: 4rem; margin-bottom: 20px; color: var(--gray);">
+        <i class="fas fa-search"></i>
+    </div>
     <h3>No courses found</h3>
     <p style="color: var(--gray);">Try adjusting your search or check back later.</p>
 </div>
@@ -135,7 +137,7 @@
         grid.innerHTML = courses.map(course => `
             <div class="course-card">
                 <div class="course-img">
-                    ${course.title.charAt(0)}
+                    <i class="fas fa-book"></i>
                 </div>
                 <div class="course-body">
                     <h3 class="course-title">${course.title}</h3>

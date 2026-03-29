@@ -17,3 +17,7 @@ Route::get('/register', function () {
 Route::get('/courses', function () {
     return view('courses.index');
 });
+
+Route::get('/courses/{id}', function ($id) {
+    return view('courses.show', ['id' => $id]);
+});

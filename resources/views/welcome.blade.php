@@ -17,17 +17,23 @@
 
 <div class="features-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 60px;">
     <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: var(--shadow); text-align: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">📚</div>
+        <div style="font-size: 2.5rem; margin-bottom: 15px; color: var(--primary);">
+            <i class="fas fa-book-open"></i>
+        </div>
         <h3>Quality Content</h3>
         <p style="color: var(--gray);">Access courses created by industry experts and experienced educators.</p>
     </div>
     <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: var(--shadow); text-align: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
+        <div style="font-size: 2.5rem; margin-bottom: 15px; color: var(--secondary);">
+            <i class="fas fa-shield-alt"></i>
+        </div>
         <h3>Secure Learning</h3>
         <p style="color: var(--gray);">Safe payments and verified teacher profiles for a peace of mind.</p>
     </div>
     <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: var(--shadow); text-align: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">📈</div>
+        <div style="font-size: 2.5rem; margin-bottom: 15px; color: #f59e0b;">
+            <i class="fas fa-chart-line"></i>
+        </div>
         <h3>Track Progress</h3>
         <p style="color: var(--gray);">Detailed statistics and progress tracking for both students and teachers.</p>
     </div>
